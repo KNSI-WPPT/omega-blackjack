@@ -38,7 +38,7 @@ def split(uid: int):
 
 
 def double_down(uid: int):
-    return action(uid, "double")
+    return action(uid, "double_down")
 
 
 def insure(uid: int):

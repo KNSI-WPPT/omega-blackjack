@@ -83,11 +83,14 @@ class Table:
         self.croupier.hand.add(self.decks.get(), face_up=True)
         self.player.hand.add(self.decks.get(), face_up=True)
         self.player.hand.add(self.decks.get(), face_up=True)
-
+        
+        if self.player.hand.value >= 21:
+            self.player.hand.playing = False
+        
     @action(from_phases=("begin_game", "in_game"), to_phase="in_game")
     def hit(self):
         self.player.hand.add(self.decks.get(), face_up=True)
-        if self.player.hand.value > 21:
+        if self.player.hand.value >= 21:
             self.player.hand.playing = False
 
     @action(from_phases=("begin_game", "in_game"), to_phase="in_game")
