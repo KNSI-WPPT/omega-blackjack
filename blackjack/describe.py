@@ -14,7 +14,8 @@ def hand_to_dict(hand: Hand):
     return {
         "cards": [card_to_dict(card) for card in hand.cards],
         "value": hand.value,
-        "playing": hand.playing
+        "playing": hand.playing,
+        "winner": hand.winner
     }
 
 

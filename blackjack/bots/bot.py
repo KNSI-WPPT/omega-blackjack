@@ -11,6 +11,9 @@ class Bot:
         self.player = None
         self.croupier = None
 
+        self.number_of_cards = 0
+        self.value = 0
+
     class State:
         def __init__(self, json):
             self.phase = json["phase"]
@@ -22,6 +25,7 @@ class Bot:
             self.cards = [Bot.Hand.Card(card) for card in json["cards"]]
             self.playing = json["playing"]
             self.value = json["value"]
+            self.winner = json["winner"]
 
         class Card:
             def __init__(self, json):
@@ -63,3 +67,26 @@ class Bot:
 
     def surrender(self):
         self.parse(surrender(self.uid))
+
+    def count(self):
+        for hand in self.player.hands:
+            for card in hand.cards:
+                if self.number_of_cards == 52:
+                    self.number_of_cards = 0
+                else:
+                    if card.rank in [2, 3, 6, 7]:
+                        self.value +=1
+                    elif card.rank in [4, 5]:
+                        self.value +=2
+                    elif card.rank in [10, 11, 12, 13]:
+                        self.value -=2
+        for card in self.croupier.hand.cards:
+            if self.number_of_cards == 51:
+                self.number_of_cards = 0
+            else:
+                if card.rank in [2, 3, 6, 7]:
+                    self.value += 1
+                elif card.rank in [4, 5]:
+                    self.value += 2
+                elif card.rank in [10, 11, 12, 13]:
+                    self.value -= 2

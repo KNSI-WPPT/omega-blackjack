@@ -1,62 +1,47 @@
-from blackjack.bots.cmds import *
+from blackjack.bots.bot import Bot
 
+b = Bot(cash=1000, seed=11)
+wins = 0
+bid = 10
+for i in range(1000):
+    if b.value > 7:
+        t = b.begin(bid * 1.5)
+    elif b.value < 7:
+        t = b.begin(bid * 0.2)
+    else:
+        t = b.begin(bid)
 
-for j in range(100):
-    cash = 10000
-    uid = register(cash, j)["uid"]
-    wins = 0
+    # if card[0].rank == card[1].rank split
+    if b.player.current_hand.cards[1].rank == b.player.current_hand.cards[0].rank:
+        b.split()
 
-    for i in range(1000):
-        t = begin(uid, 10)
+    # hit hand[0] until value >16
+    while b.player.current_hand.value <= 16:
+        b.hit()
 
-        first_card = 0
-        second_card = 0
-
-        if t["state"]["phase"] == "end_game":
-            continue
-
-        for card in t["player"]["current_hand"]["cards"]:
-            if first_card == 0:
-                first_card = card["rank"]
-            else:
-                second_card = card["rank"]
-
-        if first_card == second_card:
-            t = split(uid)
-
-
-        first_hand, second_hand = t["player"]["hands"]
-
-        if second_hand["value"] == 0:
-            while int(t["player"]["current_hand"]["value"] <= 16):
-                t = hit(uid)
-
-        else:
-            while first_hand["value"] <= 16 and second_hand["value"] <= 16:
-                if int(t["player"]["current_hand"]["value"] <= 16):
-                    try:
-                        t = hit(uid)
-                    except Exception:
-                        pass
-                elif int(t["player"]["current_hand"]["value"] <= 16):
-                    try:
-                        t = hit(uid)
-                    except Exception:
-                        pass
-                else:
-                    break
-
-            first_hand, second_hand = t["player"]["hands"]
-
+    #if hand[0] value >21, don't stand hand[1]
+    if b.player.current_hand.value >=17:
         try:
-            t = stand(uid)
-            t = stand(uid)
+            b.stand()
+
         except Exception:
             pass
 
-        if 20>= t["state"]["winnings"] > 10:
-            wins += 1
-        elif t["state"]["winnings"] >20:
-            wins += 2
-    print(j,".",t["player"]["account_balance"]," / ",wins)
+    # hit hand[1] until >16
+    if b.player.hands[0].playing or b.player.hands[1].playing:
+        while b.player.current_hand.value <= 16:
+            b.hit()
 
+        try:
+            b.stand()
+
+        except Exception:
+            pass
+
+    if b.player.hands[0].winner == "Player" and b.player.hands[1].winner == "Player":
+        wins +=2
+    elif b.player.hands[1].winner == "Player" or b.player.hands[0].winner == "Player":
+        wins +=1
+    b.count()
+print(b.player.account_balance)
+print(wins)

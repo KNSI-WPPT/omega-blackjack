@@ -46,13 +46,21 @@ class Table:
         croupier_hand.cards[1].face_up = True
 
         valid_hands = (x for x in self.player.hands if 0 < x.value <= 21)
+        invalid_hands = (x for x in self.player.hands if x.value > 21 or x.value == 0)
+
+        for player_hand in invalid_hands:
+            player_hand.winner = "Croupier"
+
         for player_hand in valid_hands:
             if croupier_hand.has_blackjack and player_hand.has_blackjack:
                 multiplier = 1
+                player_hand.winner = "Draw"
             elif croupier_hand.has_blackjack:
                 multiplier = 0
+                player_hand.winner = "Croupier"
             elif player_hand.has_blackjack:
                 multiplier = 2
+                player_hand.winner = "Player"
             else:
                 # No blackjack scenario
                 # Croupier has defined strategy
@@ -61,10 +69,13 @@ class Table:
 
                 if croupier_hand.value > 21 or player_hand.value > croupier_hand.value:
                     multiplier = 2
+                    player_hand.winner = "Player"
                 elif player_hand.value == croupier_hand.value:
                     multiplier = 1
+                    player_hand.winner = "Draw"
                 else:
                     multiplier = 0
+                    player_hand.winner = "Croupier"
 
             self.state.winnings += self.state.bid * multiplier
         self.player.account_balance += self.state.winnings
@@ -83,10 +94,10 @@ class Table:
         self.croupier.hand.add(self.decks.get(), face_up=True)
         self.player.hand.add(self.decks.get(), face_up=True)
         self.player.hand.add(self.decks.get(), face_up=True)
-        
+
         if self.player.hand.value >= 21:
             self.player.hand.playing = False
-        
+
     @action(from_phases=("begin_game", "in_game"), to_phase="in_game")
     def hit(self):
         self.player.hand.add(self.decks.get(), face_up=True)

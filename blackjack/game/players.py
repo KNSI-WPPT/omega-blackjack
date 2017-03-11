@@ -6,6 +6,7 @@ class Hand:
     def __init__(self):
         self.playing = False
         self.cards = []
+        self.winner = "None"
 
     def add(self, card: Card, face_up: bool=True):
         self.playing = True
